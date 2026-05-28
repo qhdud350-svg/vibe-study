@@ -103,7 +103,7 @@ ${images.length > 0 ? '\n첨부된 레퍼런스 이미지의 무드, 컬러, 스
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             contents: [{ parts }],
-            generationConfig: { response_mime_type: 'application/json', temperature: 0.75 }
+            generationConfig: { temperature: 0.75 }
         })
     });
 
