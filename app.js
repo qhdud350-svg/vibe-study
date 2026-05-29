@@ -95,25 +95,19 @@ ${images.length > 0 ? '\n첨부된 레퍼런스 이미지의 무드, 컬러, 스
   "casestudy": "Case Study — 동일 업종 또는 유사 포지셔닝의 성공 브랜딩 사례 3개 (각각: 브랜드명, 핵심 전략 요약, 우리 브랜드가 참고할 점)"
 }`;
 
-    const parts = [{ text: prompt }];
-    images.forEach(img => parts.push({ inline_data: { mime_type: img.mimeType, data: img.data } }));
-
     const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts }],
-            generationConfig: { temperature: 0.75 }
-        })
+        body: JSON.stringify({ prompt })
     });
 
     if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error?.message || `오류 (${res.status})`);
+        throw new Error(err.error || `오류 (${res.status})`);
     }
 
     const json = await res.json();
-    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = json.text;
     if (!text) throw new Error('응답이 비어있습니다.');
 
     try {
