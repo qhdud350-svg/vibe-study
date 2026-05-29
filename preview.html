@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 브랜드 전략 파트너 — 데모</title>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .demo-badge {
+            display: inline-block;
+            background: rgba(0,113,227,0.1);
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 980px;
+            margin-bottom: 16px;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="demo-badge">DEMO</div>
+        <h1>AI 브랜드 전략 파트너</h1>
+        <p>클라이언트 정보를 입력하면 AI가 브랜드 전략을 자동으로 설계합니다</p>
+    </header>
+
+    <form id="inputForm" class="card">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>브랜드 / 클라이언트명 <span class="req">*</span></label>
+                <input type="text" id="brandName" placeholder="예: 루나 코스메틱" value="Calme" required>
+            </div>
+            <div class="form-group">
+                <label>업종 <span class="req">*</span></label>
+                <input type="text" id="industry" placeholder="예: 프래그런스, 뷰티, 패션, 식음료" value="리빙 / 홈텍스타일" required>
+            </div>
+            <div class="form-group">
+                <label>타겟 지역 <span class="req">*</span></label>
+                <input type="text" id="region" placeholder="예: 국내, 서울/수도권, 동남아시아" value="국내 (서울/수도권)" required>
+            </div>
+            <div class="form-group">
+                <label>경쟁 브랜드</label>
+                <input type="text" id="competitors" placeholder="예: 이니스프리, 라운드랩" value="무인양품, 자라홈">
+            </div>
+            <div class="form-group">
+                <label>원하는 느낌 <span class="req">*</span></label>
+                <input type="text" id="feeling" placeholder="예: 따뜻한, 자연스러운, 고급스러운" value="차분한, 감각적, 시간을 초월하는" required>
+            </div>
+            <div class="form-group">
+                <label>주요 타겟 <span class="req">*</span></label>
+                <input type="text" id="targetAudience" placeholder="예: 20-30대 여성, 직장인" value="30대 여성, 감도 높은 라이프스타일 추구층" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>레퍼런스 이미지</label>
+            <div class="upload-zone" onclick="document.getElementById('imageInput').click()">
+                <span id="uploadText">이미지를 클릭하여 업로드 (선택)</span>
+                <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>추가 메모</label>
+            <textarea id="notes" placeholder="특이사항, 클라이언트 요청 등">차분하고 감각적인 고급 리빙 브랜드. 소재의 섬세함과 레이어드 감성이 핵심.</textarea>
+        </div>
+        <button type="submit" class="btn-primary">브랜드 전략 설계하기</button>
+    </form>
+
+    <div id="loading" class="loading" style="display:none">
+        <div class="spinner"></div>
+        <p>브랜드 전략을 분석하고 있습니다</p>
+        <p class="loading-sub">약 20–40초 소요됩니다</p>
+    </div>
+
+    <div id="results" class="card results" style="display:none">
+        <div class="tabs" id="tabs"></div>
+        <div id="tabContent" class="tab-content"></div>
+        <div class="btn-row">
+            <button class="btn-primary btn-inline" onclick="downloadPPT()">PPT 다운로드</button>
+            <button class="btn-secondary" onclick="goBack()">← 수정하기</button>
+            <button class="btn-ghost" onclick="resetForm()">새로 시작</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── 데모용 목업 데이터 ─────────────────────────────────────────
+const MOCK_RESULTS = {
+    positioning: {
+        headline: "고요함이 쌓이는 공간, 일상에 스며드는 브랜드",
+        description: "칼므는 차분하고 섬세한 리빙 오브제를 통해 하루의 소음을 잠재우는 브랜드입니다. 빠른 트렌드 대신 시간이 흐를수록 깊어지는 편안함을 지향합니다.",
+        differentiators: ["레이어드 감성", "소재 중심 디자인", "고요한 사용감"],
+        vs_competitors: [
+            { brand: "무인양품", their_position: "미니멀·기능 중심 라이프스타일", our_advantage: "감각적 소재와 차분한 감성 우위" },
+            { brand: "자라홈", their_position: "트렌디·가격 경쟁력", our_advantage: "론지비티 지향, 한국 감성 특화" }
+        ]
+    },
+    persona: {
+        name: "김서연",
+        age_job: "32세, 브랜딩 디자이너",
+        intro: "바쁜 하루 끝에 집에서만큼은 진짜 나로 쉬고 싶은 사람",
+        lifestyle_tags: ["홈 카페", "저녁 산책", "독립 서점", "아날로그 취향", "슬로우 라이프"],
+        needs: ["공간에 녹아드는 조용한 오브제", "시간이 지나도 질리지 않는 디자인", "소재의 질감으로 느끼는 위로"],
+        painpoints: ["예쁘지만 쓸수록 싸구려 느낌", "트렌디하지만 금방 질리는 아이템", "공간과 어울리지 않는 과한 디자인"]
+    },
+    personality: {
+        keywords: ["Calm", "Layered", "Honest", "Sensory", "Timeless"],
+        tone_description: "조용하지만 자신 있는 목소리. 화려한 수식어 없이도 소재와 공간이 말하게 합니다. 고객에게 '이 공간은 당신 것'이라는 느낌을 전달합니다.",
+        do_expressions: ["천천히, 차곡차곡 쌓여가는", "손에 닿는 순간 달라지는", "고요함 속에 머무는"],
+        dont_expressions: ["지금 당장 구매하세요!", "트렌디한 최신 스타일", "모두가 선택한 인기 제품"]
+    },
+    story: {
+        why: "천천히, 차곡차곡 쌓여가는 차분함(calm)",
+        core_values: ["Layered Calm", "Honest Materials", "Quiet Longevity"],
+        key_message: "Woven in Calm.",
+        narrative: "칼므는 차분함을 레이어드하는 리빙 브랜드로서, 고요한 휴식의 깊이를 더합니다. 소재의 섬세함, 처음 마주하는 포근한 촉감, 공간과의 자연스러운 어우러짐, 그리고 시간이 흐를수록 더해지는 사용감까지. 칼므만의 차분한 감각이 겹겹이 포개져 일상의 모든 순간에 자연스럽게 스며듭니다."
+    },
+    slogan: [
+        { text: "Woven in Calm.", direction: "평온의 결을 엮다. — 소재와 감각이 만들어내는 고요한 일상을 표현" },
+        { text: "Layer by Layer.", direction: "한 겹 한 겹. — 시간이 쌓일수록 깊어지는 브랜드 가치를 담음" },
+        { text: "Still, Beautiful.", direction: "고요하게, 아름답게. — 차분한 아름다움이 더 오래 남는다는 메시지" },
+        { text: "Calm Lives Here.", direction: "차분함이 머무는 곳. — 공간과 제품의 조화를 직접적으로 표현" },
+        { text: "Softly, Always.", direction: "언제나 부드럽게. — 칼므의 촉각적 정체성과 일관성을 동시에 전달" }
+    ],
+    design: {
+        colors: [
+            { hex: "#B8C5CF", name: "Dawn Blue", role: "메인" },
+            { hex: "#E8E4DF", name: "Linen White", role: "서브" },
+            { hex: "#4A5058", name: "Slate", role: "포인트" }
+        ],
+        font_mood: "얇고 우아한 세리프(Cormorant, Noto Serif KR)와 클린한 산세리프 조합. 여백을 활용한 타이포그래피로 고요함 표현.",
+        image_style: "자연광 아래 소재의 질감을 클로즈업한 사진. 오버익스포즈된 화이트 톤과 안개 낀 듯한 부드러운 포커스.",
+        keywords: ["Muted", "Textured", "Airy", "Organic", "Minimal"]
+    },
+    casestudy: [
+        {
+            brand: "TEKLA",
+            industry: "홈텍스타일 / 덴마크",
+            brand_values: ["Modernity", "Timeless", "Functional", "Quality", "Longevity"],
+            strategy_points: [
+                "현대성과 자유로운 표현을 결합한, 시간에 구애받지 않는 간결한 디자인 중심의 홈웨어.",
+                "타협 없는 품질에 대한 진정성 있는 약속으로 프리미엄 포지셔닝을 구축.",
+                "빠르게 변화하는 유행을 거부하고 오래도록 지속 가능한 제품 철학으로 충성 고객을 확보."
+            ],
+            takeaway: "칼므도 '소재의 정직함'을 브랜드 전면에 내세워 텍클라처럼 품질 철학 중심의 스토리텔링 전략 적용 가능."
+        },
+        {
+            brand: "Aesop",
+            industry: "라이프스타일 / 호주",
+            brand_values: ["Intellectual", "Sensory", "Considered", "Timeless", "Ritual"],
+            strategy_points: [
+                "제품 그 자체보다 사용 경험과 의식(ritual)을 판매하는 브랜드 철학.",
+                "공간, 패키지, 카피 모든 터치포인트에서 일관된 감각적 경험 제공.",
+                "과장 없는 미니멀한 커뮤니케이션으로 오히려 강한 브랜드 신뢰를 형성."
+            ],
+            takeaway: "칼므의 '차분함을 레이어드한다'는 컨셉을 구매 경험 전체로 확장 — 패키지, 태그, 향기까지 감각적 일관성 구현 가능."
+        }
+    ]
+};
+
+let results = {};
+
+const TABS = [
+    { id: 'positioning', label: '브랜드 포지셔닝' },
+    { id: 'persona',     label: '타겟 페르소나' },
+    { id: 'personality', label: '퍼스낼리티 & 톤앤매너' },
+    { id: 'story',       label: '브랜드 스토리' },
+    { id: 'slogan',      label: '슬로건 & 카피' },
+    { id: 'design',      label: '디자인 방향성' },
+    { id: 'casestudy',   label: 'Case Study' },
+];
+
+function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const RENDERERS = {
+    positioning: (d) => `
+        <div class="slide-label">Brand Positioning</div>
+        <div class="slide-title">${esc(d.headline)}</div>
+        <hr class="slide-rule">
+        ${d.differentiators?.length ? `<div class="kw-line"><span class="kw-label">핵심 차별점 &nbsp;</span>${d.differentiators.map(esc).join(' · ')}</div>` : ''}
+        ${d.description ? `<p class="slide-para">${esc(d.description)}</p>` : ''}
+        ${d.vs_competitors?.length ? `
+        <div class="pt-wrap" style="margin-top:32px">
+            <div class="pt-section-label">경쟁사 비교</div>
+            <div class="pt-bullets">${d.vs_competitors.map(c=>`
+                <div class="pt-item"><strong>${esc(c.brand)}</strong>&ensp;${esc(c.their_position)}${c.our_advantage?`<br><span style="color:var(--accent);font-weight:500">우리 ▸ ${esc(c.our_advantage)}</span>`:''}
+                </div>`).join('')}
+            </div>
+        </div>` : ''}`,
+
+    persona: (d) => `
+        <div class="slide-label">Target Persona</div>
+        <div class="persona-pt">
+            <div class="persona-pt-name">${esc(d.name)}</div>
+            <div class="persona-pt-meta">${esc(d.age_job)}</div>
+        </div>
+        <hr class="slide-rule">
+        ${d.lifestyle_tags?.length ? `<div class="kw-line">${d.lifestyle_tags.map(esc).join(' · ')}</div>` : ''}
+        ${d.intro ? `<p class="slide-para" style="font-style:italic">"${esc(d.intro)}"</p>` : ''}
+        <div class="pt-wrap">
+            ${d.needs?.length ? `<div class="pt-section"><div class="pt-section-label">니즈</div><div class="pt-bullets">${d.needs.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div></div>` : ''}
+            ${d.painpoints?.length ? `<div class="pt-section"><div class="pt-section-label">페인포인트</div><div class="pt-bullets">${d.painpoints.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div></div>` : ''}
+        </div>`,
+
+    personality: (d) => `
+        <div class="slide-label">Brand Personality</div>
+        ${d.keywords?.length ? `<div class="slide-title">${d.keywords.map(esc).join(' · ')}</div>` : ''}
+        <hr class="slide-rule">
+        ${d.tone_description ? `<p class="slide-para">${esc(d.tone_description)}</p>` : ''}
+        <div class="pt-wrap" style="margin-top:32px">
+            ${d.do_expressions?.length ? `<div class="pt-section"><div class="pt-section-label">DO</div><div class="pt-bullets">${d.do_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div></div>` : ''}
+            ${d.dont_expressions?.length ? `<div class="pt-section"><div class="pt-section-label" style="color:#FF3B30">DON'T</div><div class="pt-bullets">${d.dont_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div></div>` : ''}
+        </div>`,
+
+    story: (d) => `
+        <div class="slide-label">Brand Story</div>
+        ${d.core_values?.length ? `<div class="kw-line">${d.core_values.map(esc).join(' · ')}</div>` : ''}
+        ${d.why ? `<p class="slide-para">${esc(d.why)}</p>` : ''}
+        ${d.narrative ? `<p class="slide-para">${esc(d.narrative)}</p>` : ''}
+        ${d.key_message ? `<div class="slide-key-msg">${esc(d.key_message)}</div>` : ''}`,
+
+    slogan: (d) => `
+        <div class="slide-label">Brand Slogan</div>
+        <div class="slogan-pt-list">
+            ${(Array.isArray(d)?d:[]).map((s,i)=>`
+            <div class="slogan-pt-item">
+                <div class="slogan-pt-num">0${i+1}</div>
+                <div class="slogan-pt-text">${esc(s.text)}</div>
+                <div class="slogan-pt-dir">${esc(s.direction)}</div>
+            </div>`).join('')}
+        </div>`,
+
+    design: (d) => `
+        <div class="slide-label">Brand Color & Design</div>
+        ${d.keywords?.length ? `<div class="kw-line">${d.keywords.map(esc).join(' · ')}</div>` : ''}
+        ${d.colors?.length ? `
+        <div class="color-swatch-large">
+            ${d.colors.map(c=>{
+                const hex=c.hex||'#ccc';
+                const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+                const dark=(r*299+g*587+b*114)/1000>150;
+                return `<div class="color-swatch-seg${dark?' color-swatch-seg-dark':''}" style="background:${esc(hex)}"><div class="color-swatch-seg-label">${esc(c.name)}<br>${esc(hex)}</div></div>`;
+            }).join('')}
+        </div>` : ''}
+        <div class="pt-wrap">
+            ${d.font_mood?`<div class="pt-item"><strong>폰트</strong>&ensp;${esc(d.font_mood)}</div>`:''}
+            ${d.image_style?`<div class="pt-item"><strong>이미지</strong>&ensp;${esc(d.image_style)}</div>`:''}
+        </div>`,
+
+    casestudy: (d) => `
+        ${(Array.isArray(d)?d:[]).map(c=>`
+        <div class="case-pt-item">
+            <div class="slide-label">Insights & Discovery</div>
+            <div class="slide-title">${esc(c.brand)}</div>
+            <hr class="slide-rule">
+            ${c.brand_values?.length?`<div class="kw-line"><span class="kw-label">Brand Values &nbsp;</span>${c.brand_values.map(esc).join(' · ')}</div>`:c.industry?`<div class="kw-line"><span class="kw-label">Industry &nbsp;</span>${esc(c.industry)}</div>`:''}
+            <div class="pt-wrap"><div class="pt-bullets">
+                ${(c.strategy_points||[c.strategy]).filter(Boolean).map(p=>`<div class="pt-item">${esc(p)}</div>`).join('')}
+                ${c.takeaway?`<div class="pt-item" style="color:var(--accent);font-weight:500">${esc(c.takeaway)}</div>`:''}
+            </div></div>
+        </div>`).join('')}`,
+};
+
+function buildTabs() {
+    document.getElementById('tabs').innerHTML = TABS.map((t,i) =>
+        `<button class="tab${i===0?' active':''}" onclick="switchTab('${t.id}',this)">${t.label}</button>`
+    ).join('');
+}
+
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const content = document.getElementById('tabContent');
+    const renderer = RENDERERS[id];
+    if (renderer && results[id]) {
+        try { content.innerHTML = renderer(results[id]); }
+        catch { content.textContent = JSON.stringify(results[id], null, 2); }
+    }
+}
+
+document.getElementById('inputForm').addEventListener('submit', e => {
+    e.preventDefault();
+    document.getElementById('inputForm').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    // 데모: 2초 후 목업 결과 표시
+    setTimeout(() => {
+        results = MOCK_RESULTS;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        buildTabs();
+        switchTab('positioning', document.querySelector('.tab'));
+    }, 2000);
+});
+
+function goBack() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('inputForm').style.display = 'block';
+}
+
+function resetForm() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('inputForm').style.display = 'block';
+    results = {};
+}
+
+function toText(id, d) {
+    if (!d) return '';
+    switch(id) {
+        case 'positioning': return [d.headline,'',d.description,'','차별점',...(d.differentiators||[]).map(x=>`• ${x}`)].join('\n');
+        case 'persona': return [`${d.name} | ${d.age_job}`,`"${d.intro}"`,'','니즈',...(d.needs||[]).map(x=>`• ${x}`)].join('\n');
+        case 'personality': return [`키워드: ${(d.keywords||[]).join(' · ')}`,'',d.tone_description].join('\n');
+        case 'story': return [d.why,'',d.narrative,'',d.key_message].join('\n');
+        case 'slogan': return (d||[]).map((s,i)=>`${i+1}. ${s.text}\n   ${s.direction}`).join('\n\n');
+        case 'design': return [`컬러: ${(d.colors||[]).map(c=>`${c.name}(${c.hex})`).join(', ')}`,'',`폰트: ${d.font_mood}`].join('\n');
+        case 'casestudy': return (d||[]).map(c=>`${c.brand}\nBrand Values: ${(c.brand_values||[]).join(' · ')}\n${(c.strategy_points||[]).join('\n')}`).join('\n\n');
+        default: return JSON.stringify(d);
+    }
+}
+
+function downloadPPT() {
+    const pptx = new PptxGenJS();
+    pptx.layout = 'LAYOUT_WIDE';
+    TABS.forEach(({ id, label }) => {
+        const slide = pptx.addSlide();
+        slide.background = { color: 'FFFFFF' };
+        slide.addShape(pptx.ShapeType.rect, { x:0, y:0, w:'100%', h:0.06, fill:{ color:'1D1D1F' } });
+        slide.addText('AI 브랜드 전략 파트너', { x:0.6, y:0.22, w:11, h:0.28, fontSize:8, color:'AEAEB2', fontFace:'Arial' });
+        slide.addText(label, { x:0.6, y:0.6, w:11.8, h:0.7, fontSize:26, bold:true, color:'1D1D1F', fontFace:'Arial' });
+        slide.addShape(pptx.ShapeType.line, { x:0.6, y:1.42, w:11.8, h:0, line:{ color:'F0F0F0', width:1 } });
+        slide.addText(toText(id, results[id]), { x:0.6, y:1.6, w:11.8, h:5.2, fontSize:12, color:'6E6E73', fontFace:'Arial', valign:'top', wrap:true });
+    });
+    const brandName = document.getElementById('brandName').value || '브랜드전략';
+    pptx.writeFile({ fileName: `${brandName}_브랜드전략.pptx` });
+}
+</script>
+</body>
+</html>
