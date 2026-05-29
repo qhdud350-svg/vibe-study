@@ -23,9 +23,9 @@ const RENDERERS = {
         <div class="slide-title">${esc(d.headline)}</div>
         <hr class="slide-rule">
         ${d.differentiators?.length ? `<div class="kw-line"><span class="kw-label">핵심 차별점 &nbsp;</span>${d.differentiators.map(esc).join(' · ')}</div>` : ''}
-        ${d.description ? `<div class="pt-bullets"><div class="pt-item">${esc(d.description)}</div></div>` : ''}
+        ${d.description ? `<p class="slide-para">${esc(d.description)}</p>` : ''}
         ${d.vs_competitors?.length ? `
-        <div class="pt-section">
+        <div class="pt-wrap" style="margin-top:32px">
             <div class="pt-section-label">경쟁사 비교</div>
             <div class="pt-bullets">${d.vs_competitors.map(c=>`
                 <div class="pt-item"><strong>${esc(c.brand)}</strong>&ensp;${esc(c.their_position)}${c.our_advantage ? `<br><span style="color:var(--accent);font-weight:500">우리 ▸ ${esc(c.our_advantage)}</span>` : ''}</div>`).join('')}
@@ -39,76 +39,74 @@ const RENDERERS = {
             <div class="persona-pt-meta">${esc(d.age_job)}</div>
         </div>
         <hr class="slide-rule">
-        ${d.lifestyle_tags?.length ? `<div class="kw-line"><span class="kw-label">라이프스타일 &nbsp;</span>${d.lifestyle_tags.map(esc).join(' · ')}</div>` : ''}
-        ${d.intro ? `<div class="pt-bullets"><div class="pt-item" style="font-style:italic">"${esc(d.intro)}"</div></div>` : ''}
-        ${d.needs?.length ? `
-        <div class="pt-section">
-            <div class="pt-section-label">니즈</div>
-            <div class="pt-bullets">${d.needs.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
-        </div>` : ''}
-        ${d.painpoints?.length ? `
-        <div class="pt-section">
-            <div class="pt-section-label">페인포인트</div>
-            <div class="pt-bullets">${d.painpoints.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+        ${d.lifestyle_tags?.length ? `<div class="kw-line">${d.lifestyle_tags.map(esc).join(' · ')}</div>` : ''}
+        ${d.intro ? `<p class="slide-para" style="font-style:italic">"${esc(d.intro)}"</p>` : ''}
+        ${(d.needs?.length || d.painpoints?.length) ? `
+        <div class="pt-wrap">
+            ${d.needs?.length ? `
+            <div class="pt-section">
+                <div class="pt-section-label">니즈</div>
+                <div class="pt-bullets">${d.needs.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+            </div>` : ''}
+            ${d.painpoints?.length ? `
+            <div class="pt-section">
+                <div class="pt-section-label">페인포인트</div>
+                <div class="pt-bullets">${d.painpoints.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+            </div>` : ''}
         </div>` : ''}`,
 
     personality: (d) => `
         <div class="slide-label">Brand Personality</div>
         ${d.keywords?.length ? `<div class="slide-title">${d.keywords.map(esc).join(' · ')}</div>` : ''}
         <hr class="slide-rule">
-        ${d.tone_description ? `<div class="kw-line"><span class="kw-label">톤 앤 매너 &nbsp;</span>${esc(d.tone_description)}</div>` : ''}
-        ${d.do_expressions?.length ? `
-        <div class="pt-section">
-            <div class="pt-section-label">DO</div>
-            <div class="pt-bullets">${d.do_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
-        </div>` : ''}
-        ${d.dont_expressions?.length ? `
-        <div class="pt-section">
-            <div class="pt-section-label" style="color:#FF3B30">DON'T</div>
-            <div class="pt-bullets">${d.dont_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+        ${d.tone_description ? `<p class="slide-para">${esc(d.tone_description)}</p>` : ''}
+        ${(d.do_expressions?.length || d.dont_expressions?.length) ? `
+        <div class="pt-wrap" style="margin-top:32px">
+            ${d.do_expressions?.length ? `
+            <div class="pt-section">
+                <div class="pt-section-label">DO</div>
+                <div class="pt-bullets">${d.do_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+            </div>` : ''}
+            ${d.dont_expressions?.length ? `
+            <div class="pt-section">
+                <div class="pt-section-label" style="color:#FF3B30">DON'T</div>
+                <div class="pt-bullets">${d.dont_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
+            </div>` : ''}
         </div>` : ''}`,
 
     story: (d) => `
         <div class="slide-label">Brand Story</div>
-        ${d.why ? `<div class="slide-title">${esc(d.why)}</div>` : ''}
-        <hr class="slide-rule">
-        ${d.core_values?.length ? `<div class="kw-line"><span class="kw-label">핵심 가치 &nbsp;</span>${d.core_values.map(esc).join(' · ')}</div>` : ''}
-        ${d.key_message ? `<div class="pt-bullets"><div class="pt-item" style="font-weight:600;color:var(--text)">${esc(d.key_message)}</div></div>` : ''}
-        ${d.narrative ? `
-        <div class="pt-section">
-            <div class="pt-section-label">브랜드 내러티브</div>
-            <div class="pt-bullets"><div class="pt-item">${esc(d.narrative)}</div></div>
-        </div>` : ''}`,
+        ${d.core_values?.length ? `<div class="kw-line">${d.core_values.map(esc).join(' · ')}</div>` : ''}
+        ${d.why ? `<p class="slide-para">${esc(d.why)}</p>` : ''}
+        ${d.narrative ? `<p class="slide-para">${esc(d.narrative)}</p>` : ''}
+        ${d.key_message ? `<div class="slide-key-msg">${esc(d.key_message)}</div>` : ''}`,
 
     slogan: (d) => `
-        <div class="slide-label">Slogan & Copy</div>
-        <hr class="slide-rule" style="margin-top:8px">
+        <div class="slide-label">Brand Slogan</div>
         <div class="slogan-pt-list">
             ${(Array.isArray(d) ? d : []).map((s,i)=>`
             <div class="slogan-pt-item">
                 <div class="slogan-pt-num">0${i+1}</div>
-                <div>
-                    <div class="slogan-pt-text">"${esc(s.text)}"</div>
-                    <div class="slogan-pt-dir">${esc(s.direction)}</div>
-                </div>
+                <div class="slogan-pt-text">${esc(s.text)}</div>
+                <div class="slogan-pt-dir">${esc(s.direction)}</div>
             </div>`).join('')}
         </div>`,
 
     design: (d) => `
-        <div class="slide-label">Design Direction</div>
-        ${d.keywords?.length ? `<div class="slide-title">${d.keywords.map(esc).join(' · ')}</div>` : ''}
-        <hr class="slide-rule">
+        <div class="slide-label">Brand Color & Design</div>
+        ${d.keywords?.length ? `<div class="kw-line">${d.keywords.map(esc).join(' · ')}</div>` : ''}
         ${d.colors?.length ? `
-        <div class="color-strip">${d.colors.map(c=>`<div class="color-strip-seg" style="background:${esc(c.hex)}"></div>`).join('')}</div>
-        <div class="color-row" style="margin-bottom:28px">${d.colors.map(c=>`
-            <div class="color-item">
-                <div class="color-swatch" style="background:${esc(c.hex)}"></div>
-                <div class="color-hex">${esc(c.hex)}</div>
-                <div class="color-name">${esc(c.name)}</div>
-                <div class="color-role">${esc(c.role)}</div>
-            </div>`).join('')}
+        <div class="color-swatch-large">
+            ${d.colors.map(c=>{
+                const hex = c.hex||'#ccc';
+                const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+                const dark = (r*299+g*587+b*114)/1000 > 150;
+                return `<div class="color-swatch-seg${dark?' color-swatch-seg-dark':''}" style="background:${esc(hex)}">
+                    <div class="color-swatch-seg-label">${esc(c.name)}<br>${esc(hex)}</div>
+                </div>`;
+            }).join('')}
         </div>` : ''}
-        <div class="pt-bullets">
+        <div class="pt-wrap">
             ${d.font_mood ? `<div class="pt-item"><strong>폰트</strong>&ensp;${esc(d.font_mood)}</div>` : ''}
             ${d.image_style ? `<div class="pt-item"><strong>이미지</strong>&ensp;${esc(d.image_style)}</div>` : ''}
         </div>`,
@@ -121,9 +119,11 @@ const RENDERERS = {
             <hr class="slide-rule">
             ${c.brand_values?.length ? `<div class="kw-line"><span class="kw-label">Brand Values &nbsp;</span>${c.brand_values.map(esc).join(' · ')}</div>` :
               c.industry ? `<div class="kw-line"><span class="kw-label">Industry &nbsp;</span>${esc(c.industry)}</div>` : ''}
-            <div class="pt-bullets">
-                ${(c.strategy_points||[c.strategy]).filter(Boolean).map(p=>`<div class="pt-item">${esc(p)}</div>`).join('')}
-                ${c.takeaway ? `<div class="pt-item" style="color:var(--accent);font-weight:500">${esc(c.takeaway)}</div>` : ''}
+            <div class="pt-wrap">
+                <div class="pt-bullets">
+                    ${(c.strategy_points||[c.strategy]).filter(Boolean).map(p=>`<div class="pt-item">${esc(p)}</div>`).join('')}
+                    ${c.takeaway ? `<div class="pt-item" style="color:var(--accent);font-weight:500">${esc(c.takeaway)}</div>` : ''}
+                </div>
             </div>
         </div>`).join('')}`,
 };
