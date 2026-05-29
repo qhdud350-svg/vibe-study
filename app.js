@@ -319,6 +319,11 @@ async function generateStrategy(data) {
 
 // ─── 리셋 & PPT ─────────────────────────────────────────────────
 
+function goBack() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('inputForm').style.display = 'block';
+}
+
 function resetForm() {
     document.getElementById('inputForm').reset();
     document.getElementById('imagePreview').innerHTML = '';
