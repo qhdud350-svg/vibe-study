@@ -19,141 +19,113 @@ function esc(str) {
 
 const RENDERERS = {
     positioning: (d) => `
-        <div class="res-hero">${esc(d.headline)}</div>
-        ${d.description ? `<p class="res-desc">${esc(d.description)}</p>` : ''}
-        ${d.differentiators?.length ? `
-        <div class="res-block">
-            <div class="res-label">핵심 차별점</div>
-            <div class="tag-row">${d.differentiators.map(x=>`<span class="tag tag-blue">${esc(x)}</span>`).join('')}</div>
-        </div>` : ''}
+        <div class="slide-label">Brand Positioning</div>
+        <div class="slide-title">${esc(d.headline)}</div>
+        <hr class="slide-rule">
+        ${d.differentiators?.length ? `<div class="kw-line"><span class="kw-label">핵심 차별점 &nbsp;</span>${d.differentiators.map(esc).join(' · ')}</div>` : ''}
+        ${d.description ? `<div class="pt-bullets"><div class="pt-item">${esc(d.description)}</div></div>` : ''}
         ${d.vs_competitors?.length ? `
-        <div class="res-block">
-            <div class="res-label">경쟁사 비교</div>
-            <div class="mini-grid">${d.vs_competitors.map(c=>`
-                <div class="mini-card">
-                    <div class="mini-title">${esc(c.brand)}</div>
-                    <div class="mini-desc">${esc(c.their_position)}</div>
-                    ${c.our_advantage ? `<div class="mini-accent">우리 ▸ ${esc(c.our_advantage)}</div>` : ''}
-                </div>`).join('')}
+        <div class="pt-section">
+            <div class="pt-section-label">경쟁사 비교</div>
+            <div class="pt-bullets">${d.vs_competitors.map(c=>`
+                <div class="pt-item"><strong>${esc(c.brand)}</strong>&ensp;${esc(c.their_position)}${c.our_advantage ? `<br><span style="color:var(--accent);font-weight:500">우리 ▸ ${esc(c.our_advantage)}</span>` : ''}</div>`).join('')}
             </div>
         </div>` : ''}`,
 
     persona: (d) => `
-        <div class="persona-card">
-            <div class="persona-avatar">${esc((d.name||'?').charAt(0))}</div>
-            <div>
-                <div class="persona-name">${esc(d.name)}</div>
-                <div class="persona-meta">${esc(d.age_job)}</div>
-                <div class="persona-intro">"${esc(d.intro)}"</div>
-            </div>
+        <div class="slide-label">Target Persona</div>
+        <div class="persona-pt">
+            <div class="persona-pt-name">${esc(d.name)}</div>
+            <div class="persona-pt-meta">${esc(d.age_job)}</div>
         </div>
-        ${d.lifestyle_tags?.length ? `
-        <div class="res-block">
-            <div class="res-label">라이프스타일</div>
-            <div class="tag-row">${d.lifestyle_tags.map(x=>`<span class="tag tag-gray">${esc(x)}</span>`).join('')}</div>
-        </div>` : ''}
+        <hr class="slide-rule">
+        ${d.lifestyle_tags?.length ? `<div class="kw-line"><span class="kw-label">라이프스타일 &nbsp;</span>${d.lifestyle_tags.map(esc).join(' · ')}</div>` : ''}
+        ${d.intro ? `<div class="pt-bullets"><div class="pt-item" style="font-style:italic">"${esc(d.intro)}"</div></div>` : ''}
         ${d.needs?.length ? `
-        <div class="res-block">
-            <div class="res-label">니즈</div>
-            <div class="mini-grid">${d.needs.map(x=>`<div class="mini-card"><div class="mini-desc">${esc(x)}</div></div>`).join('')}</div>
+        <div class="pt-section">
+            <div class="pt-section-label">니즈</div>
+            <div class="pt-bullets">${d.needs.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
         </div>` : ''}
         ${d.painpoints?.length ? `
-        <div class="res-block">
-            <div class="res-label">페인포인트</div>
-            <div class="mini-grid">${d.painpoints.map(x=>`<div class="mini-card mini-card-red"><div class="mini-desc">${esc(x)}</div></div>`).join('')}</div>
+        <div class="pt-section">
+            <div class="pt-section-label">페인포인트</div>
+            <div class="pt-bullets">${d.painpoints.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
         </div>` : ''}`,
 
     personality: (d) => `
-        ${d.keywords?.length ? `
-        <div class="res-block">
-            <div class="res-label">브랜드 키워드</div>
-            <div class="tag-row">${d.keywords.map(x=>`<span class="tag tag-dark">${esc(x)}</span>`).join('')}</div>
+        <div class="slide-label">Brand Personality</div>
+        ${d.keywords?.length ? `<div class="slide-title">${d.keywords.map(esc).join(' · ')}</div>` : ''}
+        <hr class="slide-rule">
+        ${d.tone_description ? `<div class="kw-line"><span class="kw-label">톤 앤 매너 &nbsp;</span>${esc(d.tone_description)}</div>` : ''}
+        ${d.do_expressions?.length ? `
+        <div class="pt-section">
+            <div class="pt-section-label">DO</div>
+            <div class="pt-bullets">${d.do_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
         </div>` : ''}
-        ${d.tone_description ? `
-        <div class="res-block">
-            <div class="res-label">언어 톤 & 감성</div>
-            <p class="res-desc">${esc(d.tone_description)}</p>
-        </div>` : ''}
-        ${(d.do_expressions?.length || d.dont_expressions?.length) ? `
-        <div class="res-block">
-            <div class="res-label">커뮤니케이션 가이드</div>
-            <div class="do-dont">
-                <div class="do-box">
-                    <div class="dd-label do-label">DO</div>
-                    ${(d.do_expressions||[]).map(x=>`<div class="dd-item">${esc(x)}</div>`).join('')}
-                </div>
-                <div class="dont-box">
-                    <div class="dd-label dont-label">DON'T</div>
-                    ${(d.dont_expressions||[]).map(x=>`<div class="dd-item">${esc(x)}</div>`).join('')}
-                </div>
-            </div>
+        ${d.dont_expressions?.length ? `
+        <div class="pt-section">
+            <div class="pt-section-label" style="color:#FF3B30">DON'T</div>
+            <div class="pt-bullets">${d.dont_expressions.map(x=>`<div class="pt-item">${esc(x)}</div>`).join('')}</div>
         </div>` : ''}`,
 
     story: (d) => `
-        ${d.why ? `<div class="story-why">${esc(d.why)}</div>` : ''}
-        ${d.core_values?.length ? `
-        <div class="res-block">
-            <div class="res-label">핵심 가치</div>
-            <div class="tag-row">${d.core_values.map(x=>`<span class="tag tag-blue">${esc(x)}</span>`).join('')}</div>
-        </div>` : ''}
-        ${d.key_message ? `<div class="key-msg">${esc(d.key_message)}</div>` : ''}
+        <div class="slide-label">Brand Story</div>
+        ${d.why ? `<div class="slide-title">${esc(d.why)}</div>` : ''}
+        <hr class="slide-rule">
+        ${d.core_values?.length ? `<div class="kw-line"><span class="kw-label">핵심 가치 &nbsp;</span>${d.core_values.map(esc).join(' · ')}</div>` : ''}
+        ${d.key_message ? `<div class="pt-bullets"><div class="pt-item" style="font-weight:600;color:var(--text)">${esc(d.key_message)}</div></div>` : ''}
         ${d.narrative ? `
-        <div class="res-block">
-            <div class="res-label">브랜드 내러티브</div>
-            <p class="res-desc">${esc(d.narrative)}</p>
+        <div class="pt-section">
+            <div class="pt-section-label">브랜드 내러티브</div>
+            <div class="pt-bullets"><div class="pt-item">${esc(d.narrative)}</div></div>
         </div>` : ''}`,
 
     slogan: (d) => `
-        <div class="slogan-list">
-            ${(Array.isArray(d) ? d : []).map(s=>`
-                <div class="slogan-card">
-                    <div class="slogan-text">"${esc(s.text)}"</div>
-                    <div class="slogan-dir">${esc(s.direction)}</div>
-                </div>`).join('')}
+        <div class="slide-label">Slogan & Copy</div>
+        <hr class="slide-rule" style="margin-top:8px">
+        <div class="slogan-pt-list">
+            ${(Array.isArray(d) ? d : []).map((s,i)=>`
+            <div class="slogan-pt-item">
+                <div class="slogan-pt-num">0${i+1}</div>
+                <div>
+                    <div class="slogan-pt-text">"${esc(s.text)}"</div>
+                    <div class="slogan-pt-dir">${esc(s.direction)}</div>
+                </div>
+            </div>`).join('')}
         </div>`,
 
     design: (d) => `
+        <div class="slide-label">Design Direction</div>
+        ${d.keywords?.length ? `<div class="slide-title">${d.keywords.map(esc).join(' · ')}</div>` : ''}
+        <hr class="slide-rule">
         ${d.colors?.length ? `
-        <div class="res-block">
-            <div class="res-label">컬러 팔레트</div>
-            <div class="color-row">
-                ${d.colors.map(c=>`
-                    <div class="color-item">
-                        <div class="color-swatch" style="background:${esc(c.hex)}"></div>
-                        <div class="color-hex">${esc(c.hex)}</div>
-                        <div class="color-name">${esc(c.name)}</div>
-                        <div class="color-role">${esc(c.role)}</div>
-                    </div>`).join('')}
-            </div>
+        <div class="color-strip">${d.colors.map(c=>`<div class="color-strip-seg" style="background:${esc(c.hex)}"></div>`).join('')}</div>
+        <div class="color-row" style="margin-bottom:28px">${d.colors.map(c=>`
+            <div class="color-item">
+                <div class="color-swatch" style="background:${esc(c.hex)}"></div>
+                <div class="color-hex">${esc(c.hex)}</div>
+                <div class="color-name">${esc(c.name)}</div>
+                <div class="color-role">${esc(c.role)}</div>
+            </div>`).join('')}
         </div>` : ''}
-        ${d.font_mood ? `
-        <div class="res-block">
-            <div class="res-label">폰트 & 타이포그래피</div>
-            <p class="res-desc">${esc(d.font_mood)}</p>
-        </div>` : ''}
-        ${d.image_style ? `
-        <div class="res-block">
-            <div class="res-label">이미지 & 사진 스타일</div>
-            <p class="res-desc">${esc(d.image_style)}</p>
-        </div>` : ''}
-        ${d.keywords?.length ? `
-        <div class="res-block">
-            <div class="res-label">디자인 키워드</div>
-            <div class="tag-row">${d.keywords.map(x=>`<span class="tag tag-gray">${esc(x)}</span>`).join('')}</div>
-        </div>` : ''}`,
+        <div class="pt-bullets">
+            ${d.font_mood ? `<div class="pt-item"><strong>폰트</strong>&ensp;${esc(d.font_mood)}</div>` : ''}
+            ${d.image_style ? `<div class="pt-item"><strong>이미지</strong>&ensp;${esc(d.image_style)}</div>` : ''}
+        </div>`,
 
     casestudy: (d) => `
-        <div class="case-list">
-            ${(Array.isArray(d) ? d : []).map(c=>`
-                <div class="case-card">
-                    <div class="case-head">
-                        <span class="case-brand">${esc(c.brand)}</span>
-                        <span class="case-industry">${esc(c.industry)}</span>
-                    </div>
-                    <div class="case-strategy">${esc(c.strategy)}</div>
-                    <div class="case-takeaway">💡 ${esc(c.takeaway)}</div>
-                </div>`).join('')}
-        </div>`,
+        ${(Array.isArray(d) ? d : []).map(c=>`
+        <div class="case-pt-item">
+            <div class="slide-label">Insights & Discovery</div>
+            <div class="slide-title">${esc(c.brand)}</div>
+            <hr class="slide-rule">
+            ${c.brand_values?.length ? `<div class="kw-line"><span class="kw-label">Brand Values &nbsp;</span>${c.brand_values.map(esc).join(' · ')}</div>` :
+              c.industry ? `<div class="kw-line"><span class="kw-label">Industry &nbsp;</span>${esc(c.industry)}</div>` : ''}
+            <div class="pt-bullets">
+                ${(c.strategy_points||[c.strategy]).filter(Boolean).map(p=>`<div class="pt-item">${esc(p)}</div>`).join('')}
+                ${c.takeaway ? `<div class="pt-item" style="color:var(--accent);font-weight:500">${esc(c.takeaway)}</div>` : ''}
+            </div>
+        </div>`).join('')}`,
 };
 
 // ─── 탭 이벤트 ──────────────────────────────────────────────────
@@ -287,9 +259,27 @@ async function generateStrategy(data) {
     "keywords": ["키워드1", "키워드2", "키워드3", "키워드4", "키워드5"]
   },
   "casestudy": [
-    {"brand": "브랜드명", "industry": "업종/지역", "strategy": "핵심 전략 요약 (2-3문장)", "takeaway": "참고할 구체적인 포인트"},
-    {"brand": "브랜드명2", "industry": "업종/지역", "strategy": "전략 요약", "takeaway": "참고 포인트"},
-    {"brand": "브랜드명3", "industry": "업종/지역", "strategy": "전략 요약", "takeaway": "참고 포인트"}
+    {
+      "brand": "브랜드명",
+      "industry": "업종/지역",
+      "brand_values": ["가치키워드1", "가치키워드2", "가치키워드3", "가치키워드4", "가치키워드5"],
+      "strategy_points": ["핵심 전략 포인트1 (1-2문장)", "전략 포인트2 (1-2문장)", "전략 포인트3 (1-2문장)"],
+      "takeaway": "이 브랜드에서 참고할 핵심 포인트"
+    },
+    {
+      "brand": "브랜드명2",
+      "industry": "업종/지역",
+      "brand_values": ["키워드1", "키워드2", "키워드3", "키워드4"],
+      "strategy_points": ["전략 포인트1", "전략 포인트2", "전략 포인트3"],
+      "takeaway": "참고 포인트"
+    },
+    {
+      "brand": "브랜드명3",
+      "industry": "업종/지역",
+      "brand_values": ["키워드1", "키워드2", "키워드3", "키워드4"],
+      "strategy_points": ["전략 포인트1", "전략 포인트2", "전략 포인트3"],
+      "takeaway": "참고 포인트"
+    }
   ]
 }`;
 
