@@ -9,3 +9,10 @@
 - 기획 문서: ~/Desktop/Vibe/기획/
 - 코드: ~/Desktop/Vibe/프로젝트명/
 - 과제: ~/Desktop/Vibe/과제/
+
+## 웹 개발 규칙
+- HTML/CSS 작업 시 항상 모바일 반응형(Mobile-first)으로 작성한다.
+- breakpoint 기준: 모바일 ~600px / 태블릿 ~960px / 데스크탑 960px~
+- 이미지는 항상 max-width: 100% 처리한다.
+- 터치 영역(버튼 등)은 최소 44px 이상으로 설정한다.
+- 새 웹 프로젝트 시작 전 Plan 에이전트로 반응형 구조를 먼저 설계한다.
